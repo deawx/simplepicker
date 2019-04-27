@@ -1,9 +1,38 @@
-const dateUtil = require('./date-util');
-const { htmlTemplate } = require('./template');
+import * as dateUtil from './date-util';
+import { htmlTemplate } from './template';
 
 const today = new Date();
+interface SimplePickerOpts {
+  zIndex: number;
+  compactMode: boolean;
+  disableTimeSection: boolean;
+}
 
 class SimplePicker {
+  selectedDate: Date;
+  $simplePicker: HTMLElement;
+  readableDate: string;
+  _eventHandlers: Object;
+  _validOnListeners: string[];
+
+  private opts: SimplePickerOpts;
+  private $: Function;
+  private $$: Function;
+  private $simplepicker: HTMLElement;
+  private $simplepickerWrapper: HTMLElement;
+  private $trs: HTMLElement[];
+  private $tds: HTMLElement[];
+  private $headerMonthAndYear: HTMLElement;
+  private $monthAndYear: HTMLElement;
+  private $date: HTMLElement;
+  private $day: HTMLElement;
+  private $time: HTMLElement;
+  private $timeInput: HTMLElement;
+  private $timeSectionIcon: HTMLElement;
+  private $cancel: HTMLElement;
+  private $ok: HTMLElement;
+  private $displayDateElements: HTMLElement[];
+
   constructor(el, opts) {
     if (typeof el === 'object') {
       opts = el;
@@ -22,7 +51,7 @@ class SimplePicker {
     this.selectedDate = new Date();
     this.$simplepicker = el;
     this.initElMethod(el);
-    this.injectTemplate(el);
+    this.injectTemplate();
     this.init(opts);
     this.initListeners();
 
@@ -166,7 +195,7 @@ class SimplePicker {
     this.updateDateComponents(date);
   }
 
-  updateSelectedDate(el) {
+  updateSelectedDate(el?) {
     const { $monthAndYear, $time, $date } = this;
 
     let day;
@@ -196,7 +225,7 @@ class SimplePicker {
     let _date = day + ' ';
     _date += $monthAndYear.innerHTML.trim() + ' ';
     _date += $time.innerHTML.trim();
-    this.readableDate = _date.replace(/^\d+/, date.getDate());
+    this.readableDate = _date.replace(/^\d+/, date.getDate().toString());
   }
 
   selectDate(el) {
@@ -210,7 +239,7 @@ class SimplePicker {
     this.updateDateComponents(this.selectedDate);
   }
 
-  findElementWithDate(date, returnLastIfNotFound) {
+  findElementWithDate(date, returnLastIfNotFound = false) {
     const { $tds } = this;
 
     let el, lastTd;
@@ -293,7 +322,7 @@ class SimplePicker {
     } = this;
     const _this = this;
     $simplepicker.addEventListener('click', function (e) {
-      const { target } = e;
+      const target = e.target as HTMLElement;
       const tagName = target.tagName.toLowerCase();
 
       e.stopPropagation();
@@ -309,7 +338,7 @@ class SimplePicker {
       }
     });
 
-    $timeInput.addEventListener('input', function (e) {
+    $timeInput.addEventListener('input', (e: any) => {
       if (e.target.value === '') {
         return;
       }
@@ -369,5 +398,4 @@ class SimplePicker {
   }
 }
 
-// window.SimplePicker = SimplePicker;
-module.exports = SimplePicker;
+export = SimplePicker;
